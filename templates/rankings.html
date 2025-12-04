@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://cdn.tailwindcss.com"></script>
+<style>
+    body {
+        background: radial-gradient(circle at top, #0a0f1f, #000);
+        color: #f1f1f1;
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+        background-attachment: fixed;
+    }
+
+    .music-card {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 14px;
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+
+    .title-glow {
+        text-align: center;
+        font-size: 2.4rem;
+        margin-bottom: 30px;
+        color: #61dafb;
+        text-shadow: 0px 0px 12px rgba(97, 218, 251, .5);
+    }
+
+    .btn-music {
+        background: linear-gradient(135deg, #0099ff, #7d2eff);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        transition: 0.2s;
+    }
+    .btn-music:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+    }
+
+    .bg-image-header {
+        background: url('https://images.unsplash.com/photo-1528660892460-4c8174a1b0c1?auto=format&fit=crop&w=1500&q=80') center/cover no-repeat;
+        min-height: 180px;
+        border-radius: 14px;
+        margin-bottom: 20px;
+        box-shadow: 0 0 25px rgba(0,0,0,0.5);
+    }
+</style>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Rankings</title>
+<style>
+body {
+    background-color: #f8f9fa;
+}
+.container {
+    margin-top: 50px;
+}
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #343a40;
+}
+.table thead {
+    background-color: #343a40;
+    color: white;
+}
+.table tbody tr:hover {
+    background-color: #e9ecef;
+}
+.status-badge {
+    padding: 0.4em 0.6em;
+    border-radius: 0.35rem;
+    font-weight: bold;
+    font-size: 0.9em;
+}
+.status-done { background-color: #28a745; color: white; }
+.status-processing { background-color: #ffc107; color: black; }
+.status-failed { background-color: #dc3545; color: white; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Track Rankings</h1>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Track Name</th>
+                <th>Score</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody id="rankings-body">
+            <!-- Rankings will be loaded here dynamically -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+async function fetchRankings() {
+    try {
+        const response = await fetch("{% url 'rankings_data' %}");
+        const data = await response.json();
+        const tbody = document.getElementById('rankings-body');
+        tbody.innerHTML = '';
+
+        data.tracks.forEach((track, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>${track.name}</td>
+                <td>${track.score.toFixed(2)}</td>
+                <td>
+                    <span class="status-badge status-${track.status}">${track.status}</span>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    } catch (err) {
+        console.error("Error fetching rankings:", err);
+    }
+}
+
+// Initial load
+fetchRankings();
+
+// Refresh every 5 seconds
+setInterval(fetchRankings, 5000);
+</script>
+
+</body>
+</html>

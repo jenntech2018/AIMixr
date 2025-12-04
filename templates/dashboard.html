@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            background: radial-gradient(circle at top, #0a0f1f, #000);
+        }
+    </style>
+</head>
+
+<body class="text-gray-200 min-h-screen">
+
+    <!-- HEADER -->
+    <div class="w-full h-48 rounded-xl mb-6 shadow-xl bg-cover bg-center"
+         style="background-image:url('https://images.unsplash.com/photo-1528660892460-4c8174a1b0c1?auto=format&fit=crop&w=1500&q=80');">
+        <h1 class="text-center text-4xl font-bold text-lime-300 drop-shadow-lg pt-16">
+            AI Music Analysis / Remastering
+        </h1>
+    </div>
+
+    <div class="max-w-3xl mx-auto">
+
+        <h1 class="text-center text-4xl font-bold mb-8 text-cyan-300 drop-shadow-lg">
+            Your Music Dashboard
+        </h1>
+
+        <div class="bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-lg">
+
+            <!-- UPLOAD BUTTON -->
+            {% if user.userprofile.has_active_subscription or user.userprofile.uploads_used < 1 %}
+                <a href="/upload/"
+                   class="block w-full text-center py-3 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold shadow">
+                    Upload Track
+                </a>
+            {% else %}
+                <a href="/upgrade/"
+                   class="block w-full text-center py-3 bg-yellow-500 hover:bg-yellow-600 rounded-lg font-bold shadow">
+                    Upgrade to Upload More
+                </a>
+            {% endif %}
+
+            <!-- UPLOAD FORM -->
+            <form method="post" enctype="multipart/form-data" class="space-y-6 mt-6">
+                {% csrf_token %}
+
+                <div>
+                    <label class="block mb-2 font-semibold">Upload Audio File</label>
+                    <input type="file" name="audio_file"
+                           class="w-full p-3 rounded-lg bg-black/30 border border-white/20 focus:ring-2 focus:ring-cyan-400">
+                </div>
+
+                <button type="submit"
+                        class="w-full py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600
+                               font-bold text-white shadow-lg hover:opacity-85 hover:-translate-y-0.5 transition">
+                    Submit
+                </button>
+            </form>
+
+            <!-- LIST OF TRACKS -->
+            {% if tracks %}
+                <div class="mt-10 space-y-6">
+                    {% for track in tracks %}
+                        <div class="p-4 bg-black/20 rounded-xl border border-white/10 shadow">
+
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-semibold text-lg">{{ track.audio_file.name }}</div>
+                                    <div class="text-gray-400 text-sm">Status: {{ track.status }}</div>
+                                </div>
+
+                                <!-- MASTER BUTTON -->
+                                {% if free_limit_reached %}
+                                    <button disabled
+                                            class="px-4 py-2 bg-gray-600 text-white rounded-lg cursor-not-allowed opacity-60">
+                                        Master Track (Upgrade Needed)
+                                    </button>
+                                {% else %}
+                                    <form method="post" action="{% url 'master_track' track.id %}">
+                                        {% csrf_token %}
+                                        <button class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow">
+                                            ✨ Master Track
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            </div>
+
+                            <a href="{% url 'track_detail' track.id %}"
+                               class="block mt-3 text-cyan-300 hover:text-cyan-400 text-sm underline">
+                                View Details →
+                            </a>
+
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+</body>
+</html>

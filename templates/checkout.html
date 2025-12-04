@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Checkout</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            background: radial-gradient(circle at top, #0a0f1f, #000);
+        }
+    </style>
+</head>
+
+<body class="text-gray-200 min-h-screen p-6">
+
+<div class="max-w-2xl mx-auto mt-20 bg-white/10 backdrop-blur-md
+            border border-white/10 rounded-2xl p-10 shadow-2xl">
+
+    <h1 class="text-4xl font-bold text-center text-cyan-300 drop-shadow-lg mb-6">
+        Complete Your Upgrade
+    </h1>
+
+    <p class="text-center mb-6">
+        You’re upgrading to the 
+        <span class="font-bold text-yellow-400">{{ plan.name }}</span>.
+    </p>
+
+    <div class="text-center mb-10">
+        {% for f in plan.features %}
+            <p class="text-lg">{{ f }}</p>
+        {% endfor %}
+        <p class="font-bold text-xl mt-4">${{ plan.price }} / month</p>
+    </div>
+
+    <button id="checkoutBtn"
+        class="w-full py-3 rounded-lg bg-gradient-to-r from-yellow-500 to-yellow-600
+            font-bold text-black shadow-xl hover:opacity-85 hover:-translate-y-0.5
+            transition">
+        Continue to Secure Checkout
+    </button>
+
+    <a href="/upgrade/"
+        class="block text-center mt-6 text-gray-400 hover:text-gray-200 underline">
+        Back to Plans
+    </a>
+</div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    const stripe = Stripe("{{ STRIPE_PUBLIC_KEY }}");
+
+    document.getElementById("checkoutBtn").onclick = async () => {
+        const response = await fetch(`/upgrade/create-checkout-session/?plan={{ plan_key }}`);
+        const data = await response.json();
+        stripe.redirectToCheckout({ sessionId: data.id });
+    };
+</script>
+
+</body>
+</html>

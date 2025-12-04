@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script src="https://cdn.tailwindcss.com"></script>
+<style>
+    body {
+        background: radial-gradient(circle at top, #0a0f1f, #000);
+        color: #f1f1f1;
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+        background-attachment: fixed;
+    }
+
+    .music-card {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(10px);
+        border-radius: 14px;
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+
+    .title-glow {
+        text-align: center;
+        font-size: 2.4rem;
+        margin-bottom: 30px;
+        color: #61dafb;
+        text-shadow: 0px 0px 12px rgba(97, 218, 251, .5);
+    }
+
+    .btn-music {
+        background: linear-gradient(135deg, #0099ff, #7d2eff);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 10px;
+        transition: 0.2s;
+    }
+    .btn-music:hover {
+        opacity: 0.85;
+        transform: translateY(-1px);
+    }
+
+    .bg-image-header {
+        background: url('https://images.unsplash.com/photo-1528660892460-4c8174a1b0c1?auto=format&fit=crop&w=1500&q=80') center/cover no-repeat;
+        min-height: 180px;
+        border-radius: 14px;
+        margin-bottom: 20px;
+        box-shadow: 0 0 25px rgba(0,0,0,0.5);
+    }
+</style>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload Track</title>
+<style>
+body { background-color: #f8f9fa; }
+.container { margin-top: 50px; max-width: 600px; }
+h1 { text-align: center; margin-bottom: 30px; color: #343a40; }
+#upload-status { margin-top: 20px; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>Upload Track</h1>
+    <form id="upload-form">
+        <div class="mb-3">
+            <input class="form-control" type="file" name="file" id="file-input" accept=".mp3,.wav" required>
+        </div>
+        <button class="btn btn-primary w-100" type="submit">Upload</button>
+    </form>
+    <div id="upload-status"></div>
+</div>
+
+<script>
+document.getElementById('upload-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const fileInput = document.getElementById('file-input');
+    if (!fileInput.files.length) return;
+
+    const formData = new FormData();
+    formData.append('file', fileInput.files[0]);
+
+    const statusDiv = document.getElementById('upload-status');
+    statusDiv.textContent = 'Uploading...';
+
+    try {
+        const response = await fetch("{% url 'upload_track' %}", {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+        });
+        const data = await response.json();
+        if (response.ok) {
+            statusDiv.textContent = `Track uploaded! Status: ${data.status}`;
+        } else {
+            statusDiv.textContent = `Error: ${data.error}`;
+        }
+    } catch (err) {
+        statusDiv.textContent = `Error: ${err}`;
+    }
+});
+</script>
+</body>
+</html>
