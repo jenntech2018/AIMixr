@@ -14,16 +14,17 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-oq4=23j9+zsw9rxl=4urbv2hrlr4cxbp+(ai20z0dqey4*@^@)'
+SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,10 +38,9 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_ROOT = "/mnt/data"
 
 # allow render domain
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".onrender.com"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".onrender.com", "http://207.126.167.7:8000/", "AIMixr.online"]
 
-# Application definition
-
+# Application definitio
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
