@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>{% block title %}AIMixr{% endblock %}</title>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            background: radial-gradient(circle at top, #0a0f1f, #000);
+            color: #f1f1f1;
+            font-family: Inter, sans-serif;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen">
+
+    <!-- ✅ NAVBAR -->
+    <nav class="bg-gray-800/80 backdrop-blur-md p-4 shadow-lg border-b border-white/10">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+
+            <a href="/dashboard/" class="text-xl font-bold text-cyan-300 hover:text-cyan-400">
+                AIMixr
+            </a>
+<img src="{% static 'images/logo.png' %}" alt="Logo"
+     class="w-10 h-10 object-contain ml-4">
+<div class="space-x-6 text-gray-200 flex items-center">
+  {% if not request.user.userprofile.has_active_subscription %}
+        <a href="/upgrade/"
+           class="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-lg shadow">
+            Upgrade
+        </a>
+{% endif %}
+    <a href="/dashboard/" class="hover:text-white">Dashboard</a>
+    <a href="/profile/" class="hover:text-white">Profile</a>
+
+
+    <a href="/logout/" class="hover:text-white">Logout</a>
+</div>
+        </div>
+    </nav>
+
+    <!-- ✅ MAIN CONTENT AREA -->
+    <main class="max-w-6xl mx-auto p-6">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+</body>
+</html>

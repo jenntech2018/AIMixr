@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: ai-music-app
+    env: docker
+    plan: free
+    dockerCommand: gunicorn ai_music.wsgi:application --bind 0.0.0.0:$PORT
+    autoDeploy: true
+    disk:
+      name: uploads
+      mountPath: /mnt/data
+      sizeGB: 5
+    envVars:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: "ai-music-app.onrender.com"

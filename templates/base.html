@@ -1,0 +1,87 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>{% block title %}AIMixr{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+        body {
+            background: radial-gradient(circle at 50% 0%, #1a1f35 0%, #05070a 100%);
+            color: #e2e8f0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+        }
+        .glass-card {
+            background: var(--glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
+        }
+        /* Hide scrollbars for a cleaner look */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+main {
+    animation: fadeIn 0.4s ease-out;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+    </style>
+</head>
+<body class="pb-24 md:pb-0">
+
+    <nav class="hidden md:block border-b border-white/5 bg-black/20 backdrop-blur-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="/dashboard/" class="text-2xl font-extrabold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">AIMIXR</a>
+            <div class="flex items-center gap-8 text-sm font-medium">
+                <a href="/dashboard/" class="hover:text-cyan-400 transition">Dashboard</a>
+                <a href="/profile/" class="hover:text-cyan-400 transition">Profile</a>
+                {% if not request.user.userprofile.subscription_active %}
+                <a href="/upgrade/" class="px-4 py-2 bg-yellow-500 text-black rounded-full font-bold btn-glow">Upgrade</a>
+                {% endif %}
+                <a href="/logout/" class="text-gray-400 hover:text-white transition">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-black/60 backdrop-blur-xl border-t border-white/10 px-8 py-3 flex justify-between items-center z-50" style="padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));">
+        <a href="/profile/" class="flex flex-col items-center text-gray-500 active:text-cyan-400">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <span class="text-[10px] mt-1 uppercase font-bold tracking-tighter">Profile</span>
+        </a>
+
+        <a href="/dashboard/" class="relative -mt-10 bg-gradient-to-tr from-cyan-500 to-blue-600 p-4 rounded-2xl shadow-2xl shadow-cyan-500/20 text-white">
+            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/></svg>
+        </a>
+
+        {% if not request.user.userprofile.subscription_active %}
+        <a href="/upgrade/" class="flex flex-col items-center text-yellow-500">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+            <span class="text-[10px] mt-1 uppercase font-bold tracking-tighter">Upgrade</span>
+        </a>
+        {% else %}
+        <div class="flex flex-col items-center opacity-40">
+            <img src="{% static 'images/logo.png' %}" class="w-6 h-6 grayscale grayscale-0">
+            <span class="text-[10px] mt-1 uppercase font-bold text-green-400">Pro</span>
+        </div>
+        {% endif %}
+    </nav>
+</body>
+</html>

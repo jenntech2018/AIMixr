@@ -1,0 +1,72 @@
+# pipeline/lyrics/transcribe.py
+import os
+import os
+os.environ["FFMPEG_BINARY"] = "/usr/bin/ffmpeg"
+os.environ["FFPROBE_BINARY"] = "/usr/bin/ffprobe"
+
+from pydub import AudioSegment
+AudioSegment.converter = "/usr/bin/ffmpeg"
+AudioSegment.ffprobe   = "/usr/bin/ffprobe"
+def _import_whisper():
+    try:
+        import whisper
+        return whisper
+    except Exception:
+        return None
+
+import os
+import time
+
+def transcribe_audio_file(audio_path: str, model_name: str = "small") -> str:
+    """
+    Transcribe audio with the whisper python package.
+    Returns the raw transcript text (may be unpunctuated).
+    Raises RuntimeError on failure.
+    """
+
+    print("🎤 [transcribe] function entered")
+    print(f"🎤 [transcribe] audio_path={audio_path}")
+    print(f"🎤 [transcribe] model_name={model_name}")
+
+    start_time = time.time()
+
+    print("🎤 [transcribe] importing whisper…")
+    whisper = _import_whisper()
+    if not whisper:
+        raise RuntimeError(
+            "whisper is not installed. Install with `pip install -U openai-whisper` and ensure ffmpeg is on PATH."
+        )
+    print("🎤 [transcribe] whisper imported OK")
+
+    print("🎤 [transcribe] checking audio file exists…")
+    if not os.path.exists(audio_path):
+        raise FileNotFoundError(f"No audio at: {audio_path}")
+    print("🎤 [transcribe] audio file exists")
+
+    print("🎤 [transcribe] loading whisper model (THIS CAN TAKE A WHILE)…")
+    model_load_start = time.time()
+    model = whisper.load_model(model_name)
+    print(
+        f"🎤 [transcribe] model loaded in {time.time() - model_load_start:.2f}s"
+    )
+
+    print("🎤 [transcribe] starting transcription…")
+    transcribe_start = time.time()
+
+    result = model.transcribe(
+        audio_path,
+        language=None,   # auto-detect
+        task="transcribe"
+    )
+
+    print(
+        f"🎤 [transcribe] transcription finished in {time.time() - transcribe_start:.2f}s"
+    )
+
+    print("🎤 [transcribe] extracting text…")
+    text = (result.get("text") or "").strip()
+
+    print(f"🎤 [transcribe] transcript length={len(text)} chars")
+    print(f"🎤 [transcribe] total time={time.time() - start_time:.2f}s")
+
+    return text

@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="max-w-full overflow-hidden space-y-8 animate-in fade-in duration-700">
+
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div class="min-w-0 flex-1"> <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white truncate">
+                {{ track.audio_file.name|default:"Unnamed Track" }}
+            </h1>
+            <div class="flex items-center gap-3 mt-2 text-sm">
+                <span class="px-3 py-1 glass-card border-cyan-500/30 text-cyan-400 font-bold uppercase text-[10px]">{{ track.status }}</span>
+                <span class="text-gray-500">Created {{ track.created_at|date:"M d, Y" }}</span>
+            </div>
+        </div>
+
+        <div class="w-full md:w-auto shrink-0">
+            {% if track.master_file %}
+                <a href="{% url 'download_track' track.id %}" class="w-full md:w-auto px-8 py-4 bg-white text-black font-black rounded-2xl hover:scale-105 transition transform flex items-center justify-center gap-2">
+                    <span>DOWNLOAD MASTER</span>
+                </a>
+            {% else %}
+                {% if user.userprofile.is_premium or user.userprofile.usage_count < 1 %}
+                    <form method="post" action="{% url 'master_track' track.id %}" class="w-full">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full px-8 py-4 bg-cyan-500 text-black font-black rounded-2xl hover:bg-cyan-400 transition flex items-center justify-center gap-2 uppercase">
+                            ✨ Master Track
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'upgrade' %}" class="w-full px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white font-black rounded-2xl hover:scale-105 transition transform flex flex-col items-center justify-center leading-tight">
+                        <span class="text-[9px] uppercase tracking-tighter opacity-80">Free Limit Reached</span>
+                        <span>UPGRADE TO UNLOCK</span>
+                    </a>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="glass-card p-6 md:p-8">
+        <div class="flex justify-between items-center mb-8">
+            <h3 class="text-xs font-black text-gray-500 uppercase tracking-[0.2em]">Acoustic Fingerprint</h3>
+            <span class="text-[10px] text-cyan-500 font-bold uppercase">A/B Comparison</span>
+        </div>
+
+        <div class="grid grid-cols-1 gap-12 overflow-hidden">
+            <div class="relative w-full">
+                <label class="text-[9px] font-black text-gray-500 uppercase mb-2 block">Input (Raw)</label>
+                <canvas id="waveform-original" class="w-full h-24 opacity-60"></canvas>
+                <audio controls class="w-full h-10 mt-2 opacity-80"><source src="{{ track.audio_file.url }}"></audio>
+            </div>
+
+            {% if track.master_file %}
+            <div class="relative pt-6 border-t border-white/5 animate-in fade-in slide-in-from-bottom-2 duration-1000">
+                <label class="text-[9px] font-black text-purple-400 uppercase mb-2 block">Output (Mastered)</label>
+                <canvas id="waveform-mastered" class="w-full h-24"></canvas>
+                <audio controls class="w-full h-10 mt-2"><source src="{{ track.master_file.url }}"></audio>
+            </div>
+            {% else %}
+            <div class="py-10 text-center border-2 border-dashed border-white/5 rounded-2xl bg-white/5">
+                <p class="text-gray-600 text-xs font-bold uppercase tracking-widest">Mastered waveform will appear here</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2 min-w-0 space-y-6">
+            {% if user.userprofile.plan_name == "Studio Pro" %}
+            <div class="glass-card p-8 border-t-4 border-t-cyan-500/50">
+                <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+                    <div class="min-w-0">
+                        <h3 class="text-xs font-black text-cyan-400 uppercase tracking-[0.3em] mb-2">AI Stem Separator</h3>
+                        <p class="text-gray-400 text-sm italic font-light truncate">Neural de-mixing technology.</p>
+                    </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="glass-card p-8 border-l-4 border-l-rose-500/50 bg-rose-500/5 overflow-hidden">
+                <h3 class="text-xs font-black text-rose-400 uppercase tracking-[0.2em] mb-6">Engineering Feedback</h3>
+                <div class="text-gray-300 leading-relaxed text-sm md:text-lg font-light space-y-4 break-words">
+                    {% if analysis.ai_feedback %}
+                        <div class="whitespace-pre-line">{{ analysis.ai_feedback|linebreaks }}</div>
+                    {% else %}
+                        <p class="italic">Awaiting final analysis...</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="min-w-0 space-y-6">
+            <div class="glass-card p-6">
+                <h3 class="text-xs font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Technical Specs</h3>
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center border-b border-white/5 pb-2 gap-4">
+                        <span class="text-xs text-gray-400 shrink-0">Loudness (RMS)</span>
+                        <span class="font-mono text-[10px] text-white break-all text-right">{{ analysis.rms|default:"-14.2" }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs text-gray-400">Bit-depth</span>
+                        <span class="font-mono text-xs text-white">24-bit Float</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-6">
+                <h3 class="text-xs font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Transcription</h3>
+                <div class="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar text-sm leading-relaxed text-gray-300 break-words">
+                    {% if analysis.lyrics_raw %}
+                        <div class="whitespace-pre-line font-medium italic">
+                            {{ analysis.lyrics_raw }}
+                        </div>
+                    {% else %}
+                        <span class="italic text-gray-600">No vocal data detected.</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(() => {
+    const draw = (canvasId, data, colorStart, colorEnd) => {
+        const canvas = document.getElementById(canvasId);
+        // Added a check to ensure data is an array and has length
+        if (!canvas || !Array.isArray(data) || data.length === 0) {
+            console.warn(`No data found for ${canvasId}`);
+            return;
+        }
+
+        const ctx = canvas.getContext("2d");
+        const dpr = window.devicePixelRatio || 1;
+        const rect = canvas.getBoundingClientRect();
+        
+        // Force width if rect is zero (safety check)
+        canvas.width = (rect.width || canvas.clientWidth) * dpr;
+        canvas.height = (rect.height || canvas.clientHeight) * dpr;
+        ctx.scale(dpr, dpr);
+
+        const width = canvas.width / dpr;
+        const height = canvas.height / dpr;
+        const mid = height / 2;
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, height);
+        gradient.addColorStop(0, colorStart);
+        gradient.addColorStop(1, colorEnd);
+
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 2;
+        ctx.lineCap = "round";
+
+        const segments = 120;
+        const step = Math.floor(data.length / segments);
+        const barWidth = width / segments;
+        const maxVal = Math.max(...data, 0.01);
+
+        ctx.beginPath();
+        for (let i = 0; i < segments; i++) {
+            const val = (data[i * step] || 0) / maxVal;
+            const barHeight = val * (height * 0.8);
+            const x = i * barWidth;
+            ctx.moveTo(x, mid - barHeight / 2);
+            ctx.lineTo(x, mid + barHeight / 2);
+        }
+        ctx.stroke();
+    };
+
+    // Use setTimeout to ensure the DOM layout is finished before drawing
+    setTimeout(() => {
+        // IMPORTANT: Check if your view uses "analysis" or "analysis_obj"
+        // Based on the view I provided earlier, it should be:
+        const rawData = {{ analysis.waveform|safe|default:"[]" }};
+        
+        if (rawData.length > 0) {
+            draw("waveform-original", rawData, "#22d3ee", "#3b82f6");
+        }
+
+        {% if analysis.master_waveform %}
+            const masteredData = {{ analysis.master_waveform|safe }};
+            draw("waveform-mastered", masteredData, "#a855f7", "#ec4899");
+        {% endif %}
+    }, 100);
+
+    // Polling logic
+    const status = "{{ track.status }}";
+    if (["processing", "pending", "uploading"].includes(status)) {
+        const poll = setInterval(async () => {
+            try {
+                const res = await fetch("{% url 'track_status' track.id %}");
+                const data = await res.json();
+                if (data.status === "analyzed" || data.status === "error") {
+                    clearInterval(poll);
+                    location.reload();
+                }
+            } catch (e) { console.error("Polling failed", e); }
+        }, 3000);
+    }
+})();
+</script>
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(34, 211, 238, 0.3); border-radius: 10px; }
+
+    /* CSS Fixes for layout blowout */
+    .whitespace-pre-line h3, .whitespace-pre-line strong {
+        display: block;
+        margin-top: 1.5rem;
+        color: #fb7185;
+        font-weight: 800;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+    }
+</style>
+
+{% endblock %}
