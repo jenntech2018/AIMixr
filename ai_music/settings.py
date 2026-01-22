@@ -29,7 +29,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 STATIC_URL = '/static/'
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
@@ -42,8 +42,7 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = "/opt/aimixr/media"
 # allow render domain
 ALLOWED_HOSTS = ["66.55.76.251", "localhost", "127.0.0.1", ".onrender.com", "http://207.126.167.7:8000/", "AIMixr.online"]
-CSRF_TRUSTED_ORIGINS = ['https://aimixr.online']
-
+CSRF_TRUSTED_ORIGINS = ['https://aimixr.online',  "https://*.run.app"]
 # Application definitio
 INSTALLED_APPS = [
     'django.contrib.admin',
