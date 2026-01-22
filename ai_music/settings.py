@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'worker.apps.WorkerConfig',
 ]
 
-
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')    
 STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_PRICE_BASIC = os.getenv("STRIPE_PRICE_BASIC")
