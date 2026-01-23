@@ -1,12 +1,19 @@
-# pipeline/gpt_analysis.py
 import logging
+import os
 from openai import OpenAI
 
 logger = logging.getLogger(__name__)
-client = OpenAI()
+
+def get_client():
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        raise RuntimeError("OPENAI_API_KEY is not set in the environment")
+    return OpenAI(api_key=api_key)
 
 def generate_ai_summary(payload: dict) -> str:
     try:
+        client = get_client()
+
         response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[

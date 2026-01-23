@@ -15,7 +15,7 @@ music-env/
 db.sqlite3
 /media/
 /staticfiles/
-
+/node_modules/
 # IDE
 .vscode/
 .idea/
@@ -39,5 +39,5 @@ media/
 __pycache__/
 
 
-Dockerfile
+# Dockerfile
 

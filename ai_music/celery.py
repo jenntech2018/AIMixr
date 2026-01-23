@@ -1,7 +1,9 @@
+
+
 # ai_music/celery.py
 import os
 from celery import Celery
-
+ 
 # Tell Celery where Django settings live
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ai_music.settings")
 
