@@ -89,32 +89,32 @@ def verify_google_purchase(request):
 
     return JsonResponse({"status": "error"}, status=400)
 
-from django.shortcuts import get_object_or_404, redirect
-from generator.models import Track  # your Track model is in generator
-from worker.tasks import split_stems_task
-from django.contrib.auth.decorators import login_required
+# from django.shortcuts import get_object_or_404, redirect
+# from generator.models import Track  # your Track model is in generator
+# from worker.tasks import split_stems_task
+# from django.contrib.auth.decorators import login_required
 
-@login_required
-def split_stems(request, track_id):
-    track = get_object_or_404(Track, id=track_id)
+# @login_required
+# def split_stems(request, track_id):
+#     track = get_object_or_404(Track, id=track_id)
 
-    # Only allow Studio Pro users
-    if request.user.userprofile.plan_name != "Studio Pro":
-        return redirect("track_detail", track_id=track.id)
+#     # Only allow Studio Pro users
+#     if request.user.userprofile.plan_name != "Studio Pro":
+#         return redirect("track_detail", track_id=track.id)
 
-    if request.method == "POST":
-        # Mark track as processing
-        track.status = "processing"
-        track.save()
+#     if request.method == "POST":
+#         # Mark track as processing
+#         track.status = "processing"
+#         track.save()
 
-        # Schedule Celery task
-        split_stems_task.delay(track.id)
+#         # Schedule Celery task
+#         split_stems_task.delay(track.id)
 
-        # Redirect back to track detail page
-        return redirect("track_detail", track_id=track.id)
+#         # Redirect back to track detail page
+#         return redirect("track_detail", track_id=track.id)
 
-    # If GET, just redirect
-    return redirect("track_detail", track_id=track.id)
+#     # If GET, just redirect
+#     return redirect("track_detail", track_id=track.id)
 
 
 

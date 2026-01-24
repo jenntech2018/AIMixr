@@ -1,5 +1,5 @@
 # Stage 1: Core Framework
-Django>=5.1,<5.2
+Django
 gunicorn>=22.0.0
 psycopg2-binary>=2.9.9
 python-dotenv
@@ -25,9 +25,9 @@ torchaudio
 
 # Stage 4: Utilities
 moviepy>=1.0.3
-pydub>=0.25.1
+pydub
 requests>=2.31.0
-stripe>=8.0.0
+stripe
 djangorestframework>=3.14.0
 google-auth
 google-auth-oauthlib
