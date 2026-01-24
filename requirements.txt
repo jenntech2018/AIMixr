@@ -9,7 +9,7 @@ pytz==2022.1
 
 # Stage 2: The AI Conflict Zone (Pinned to stay together)
 # numpy>=1.23.5,<1.26.0
-google-api-client>=2.95.0
+google-api-python-client
 # spleeter==2.4.0
 librosa==0.10.1
 openai>=1.40.0
