@@ -20,8 +20,8 @@ tensorflow-cpu>=2.15.0
 # Stage 3: PyTorch CPU (The massive downloads)
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch
-torchvision==0.17.0+cpu
-torchaudio==2.2.0+cpu
+torchvision
+torchaudio
 
 # Stage 4: Utilities
 moviepy>=1.0.3
