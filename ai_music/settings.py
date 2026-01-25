@@ -5,6 +5,7 @@ Production-ready for Google Cloud Run, but works locally for development.
 
 from pathlib import Path
 import os
+import sys
 from dotenv import load_dotenv
 
 # -------------------------------------------------------------------------------
@@ -22,20 +23,22 @@ load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = os.environ.get("SECRET_KEY", "unsafe-dev-key")
 
 # Detect if running in production
-DEBUG = False
-if os.environ.get("DJANGO_LOCAL") == "1":
-    SECURE_SSL_REDIRECT = False
-    SESSION_COOKIE_SECURE = False
-    CSRF_COOKIE_SECURE = False
+DEBUG = os.environ.get("DEBUG", "True") == "True"
+
+# Force Debug if running locally via runserver to prevent SSL redirects
+if 'runserver' in sys.argv:
+    DEBUG = True
+
+if DEBUG:
+    print("--- RUNNING IN DEBUG MODE (SSL OFF) ---")
 else:
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    print("--- RUNNING IN PRODUCTION MODE (SSL ON) ---")
 
 if DEBUG:
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
+    SECURE_HSTS_SECONDS = 0
 else:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
@@ -60,16 +63,6 @@ else:
 # -------------------------------------------------------------------------------
 # SSL / Cookies
 # -------------------------------------------------------------------------------
-
-# if DEBUG:
-#     SECURE_SSL_REDIRECT = False
-#     SESSION_COOKIE_SECURE = False
-#     CSRF_COOKIE_SECURE = False
-# else:
-#     SECURE_SSL_REDIRECT = True
-#     SESSION_COOKIE_SECURE = True
-#     CSRF_COOKIE_SECURE = True
-#     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # -------------------------------------------------------------------------------
 # Applications
@@ -96,6 +89,7 @@ INSTALLED_APPS = [
     "generator",
     "accounts",
     "worker",
+    "social",
 ]
 
 AUTH_USER_MODEL = "auth.User"

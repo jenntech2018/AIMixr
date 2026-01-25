@@ -7,6 +7,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("", include("generator.urls")),  # your app's URLs
     path("", include("accounts.urls")),  # accounts app URLs
+    path('social/', include('social.urls')),  # social app URLs
 ]
 
 if settings.DEBUG:

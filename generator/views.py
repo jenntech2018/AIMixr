@@ -109,7 +109,7 @@ def dashboard_view(request):
             print(f"Upload Error: {e}")
             messages.error(request, "An error occurred during upload processing.")
 
-    tracks = Track.objects.filter(user=request.user).order_by("-created_at")
+    tracks = Track.objects.all().order_by("-created_at")
     return render(request, "dashboard.html", {"tracks": tracks})
 
 # ---------------------------------------------------------
@@ -118,7 +118,7 @@ def dashboard_view(request):
 
 @login_required
 def track_status(request, track_id):
-    track = get_object_or_404(Track, id=track_id, user=request.user)
+    track = get_object_or_404(Track, id=track_id)
     return JsonResponse({
         "status": track.status,
         "has_analysis": hasattr(track, "analysis_obj"),
@@ -130,7 +130,7 @@ def track_status(request, track_id):
 
 @login_required
 def track_detail(request, track_id):
-    track = get_object_or_404(Track, id=track_id, user=request.user)
+    track = get_object_or_404(Track, id=track_id)
     analysis = getattr(track, "analysis_obj", None)
 
     context = {

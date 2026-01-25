@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">Challenge {{ opponent.username }}</h3>
+                </div>
+                <div class="card-body">
+                    <p class="lead">Select one of your tracks to enter into the battle.</p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="track_id" class="form-label">Your Track</label>
+                            <select name="track_id" id="track_id" class="form-select" required>
+                                <option value="" selected disabled>Choose a track...</option>
+                                {% for track in tracks %}
+                                <option value="{{ track.id }}">{{ track.title|default:"Untitled Track" }} ({{ track.created_at|date:"M d" }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">🔥 Start Battle</button>
+                            <a href="{% url 'community_chat' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
