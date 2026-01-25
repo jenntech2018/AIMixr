@@ -19,6 +19,7 @@
                     <span>DOWNLOAD MASTER</span>
                 </a>
             {% else %}
+                {% if request.user == track.user %}
                 {% if user.userprofile.is_premium or user.userprofile.usage_count < 1 %}
                     <form method="post" action="{% url 'master_track' track.id %}" class="w-full">
                         {% csrf_token %}
@@ -31,6 +32,7 @@
                         <span class="text-[9px] uppercase tracking-tighter opacity-80">Free Limit Reached</span>
                         <span>UPGRADE TO UNLOCK</span>
                     </a>
+                {% endif %}
                 {% endif %}
             {% endif %}
         </div>
