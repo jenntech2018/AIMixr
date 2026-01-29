@@ -9,6 +9,5 @@ urlpatterns = [
     path("upgrade/cancel/", views.cancel, name="cancel"),
     path("webhook/", views.stripe_webhook, name="stripe_webhook"),
     path("profile/", views.profile_view, name="profile"),
-   # path('split_stems/<int:track_id>/', views.split_stems, name='split_stems'),
     path('verify-purchase/', views.verify_google_purchase, name='verify_google_purchase'),
 ]
