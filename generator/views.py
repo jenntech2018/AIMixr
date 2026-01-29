@@ -31,6 +31,10 @@ def register_view(request):
         password1 = request.POST.get("password1")
         password2 = request.POST.get("password2")
 
+        if not password1:
+            messages.error(request, "Password is required.")
+            return redirect("register")
+
         if password1 != password2:
             messages.error(request, "Passwords do not match.")
             return redirect("register")
@@ -109,7 +113,7 @@ def dashboard_view(request):
             print(f"Upload Error: {e}")
             messages.error(request, "An error occurred during upload processing.")
 
-    tracks = Track.objects.all().order_by("-created_at")
+    tracks = Track.objects.filter(user=request.user).order_by("-created_at")
     return render(request, "dashboard.html", {"tracks": tracks})
 
 # ---------------------------------------------------------
@@ -199,3 +203,13 @@ def rankings_data(request):
             } for t in ranked
         ]
     })
+
+# ---------------------------------------------------------
+# LEGAL
+# ---------------------------------------------------------
+
+def privacy_policy(request):
+    return render(request, "legal/privacy.html")
+
+def terms_of_service(request):
+    return render(request, "legal/terms.html")
