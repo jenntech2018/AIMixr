@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse, FileResponse, Http404
 from django.core.files import File
+from django.db.models import Q
 
 from .models import Track
 from accounts.models import UserProfile
@@ -91,12 +92,16 @@ def dashboard_view(request):
             messages.error(request, "Invalid file format. Please upload an audio file.")
             return redirect("dashboard")
 
+        visibility = request.POST.get("visibility", "public")
+        is_private = (visibility == "private")
+
         # 2. CREATE TRACK
         track = Track.objects.create(
             user=request.user,
             audio_file=audio_file,
             source_type="upload",
             status="processing",
+            private=is_private,
         )
 
         try:
@@ -113,7 +118,7 @@ def dashboard_view(request):
             print(f"Upload Error: {e}")
             messages.error(request, "An error occurred during upload processing.")
 
-    tracks = Track.objects.filter(user=request.user).order_by("-created_at")
+    tracks = Track.objects.filter(Q(private=False) | Q(user=request.user)).order_by("-created_at")
     return render(request, "dashboard.html", {"tracks": tracks})
 
 # ---------------------------------------------------------
@@ -209,7 +214,7 @@ def rankings_data(request):
 # ---------------------------------------------------------
 
 def privacy_policy(request):
-    return render(request, "legal/privacy.html")
+    return render(request, "privacy.html")
 
 def terms_of_service(request):
-    return render(request, "legal/terms.html")
+    return render(request, "terms.html")

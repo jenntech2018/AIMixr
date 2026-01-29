@@ -40,24 +40,39 @@
                 
                 <form action="{% url 'dashboard' %}" method="post" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <div class="flex flex-col md:flex-row items-end gap-4">
-                        <div class="flex-1 w-full">
-                            <label class="block mb-2 text-[10px] font-black text-gray-500 uppercase tracking-widest">New Session</label>
-                            <input type="file" name="audio_file" required
-                                   class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-cyan-500 file:text-black hover:file:bg-cyan-400 cursor-pointer bg-white/5 p-2 rounded-xl border border-white/10">
+                    <div class="space-y-4">
+                        <div class="flex flex-col md:flex-row items-end gap-4">
+                            <div class="flex-1 w-full">
+                                <label class="block mb-2 text-[10px] font-black text-gray-500 uppercase tracking-widest">New Session</label>
+                                <input type="file" name="audio_file" required
+                                       class="w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-black file:bg-cyan-500 file:text-black hover:file:bg-cyan-400 cursor-pointer bg-white/5 p-2 rounded-xl border border-white/10">
+                            </div>
+
+                            {% if user.userprofile.has_active_subscription or user.userprofile.uploads_used < 5 %}
+                                <button type="submit" class="w-full md:w-auto px-8 py-3 bg-white text-black font-black rounded-xl hover:scale-105 transition-all text-sm shadow-xl">
+                                    UPLOAD
+                                </button>
+                            {% else %}
+                                <a href="/upgrade/" class="w-full md:w-auto px-8 py-3 bg-yellow-500 text-black font-black rounded-xl hover:bg-yellow-400 transition text-sm text-center">
+                                    UPGRADE
+                                </a>
+                            {% endif %}
                         </div>
 
                         {% if user.userprofile.has_active_subscription or user.userprofile.uploads_used < 5 %}
-                            <button type="submit" class="w-full md:w-auto px-8 py-3 bg-white text-black font-black rounded-xl hover:scale-105 transition-all text-sm shadow-xl">
-                                UPLOAD
-                            </button>
-                            <div>Mark as Private
-                            <radio class="sr-only" name="private" value="false" checked></radio>
-                            </div>
-                        {% else %}
-                            <a href="/upgrade/" class="w-full md:w-auto px-8 py-3 bg-yellow-500 text-black font-black rounded-xl hover:bg-yellow-400 transition text-sm text-center">
-                                UPGRADE
-                            </a>
+                        <div class="flex items-center gap-6 px-1">
+                            <span class="text-[10px] font-black text-gray-500 uppercase tracking-widest">Visibility:</span>
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="radio" name="visibility" value="public" checked class="peer sr-only">
+                                <div class="w-4 h-4 rounded-full border border-white/20 bg-black/20 peer-checked:bg-cyan-500 peer-checked:border-cyan-500 transition-all"></div>
+                                <span class="text-xs font-bold text-gray-400 group-hover:text-white transition-colors peer-checked:text-cyan-400">Public</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer group">
+                                <input type="radio" name="visibility" value="private" class="peer sr-only">
+                                <div class="w-4 h-4 rounded-full border border-white/20 bg-black/20 peer-checked:bg-rose-500 peer-checked:border-rose-500 transition-all"></div>
+                                <span class="text-xs font-bold text-gray-400 group-hover:text-white transition-colors peer-checked:text-rose-400">Private</span>
+                            </label>
+                        </div>
                         {% endif %}
                     </div>
                 </form>
