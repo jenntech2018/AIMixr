@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 class Track(models.Model):
+    private = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     lyrics = models.TextField(null=True, blank=True)
     source_type = models.CharField(max_length=20, default="upload")

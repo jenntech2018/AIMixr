@@ -51,6 +51,9 @@
                             <button type="submit" class="w-full md:w-auto px-8 py-3 bg-white text-black font-black rounded-xl hover:scale-105 transition-all text-sm shadow-xl">
                                 UPLOAD
                             </button>
+                            <div>Mark as Private
+                            <radio class="sr-only" name="private" value="false" checked></radio>
+                            </div>
                         {% else %}
                             <a href="/upgrade/" class="w-full md:w-auto px-8 py-3 bg-yellow-500 text-black font-black rounded-xl hover:bg-yellow-400 transition text-sm text-center">
                                 UPGRADE
@@ -95,6 +98,7 @@
                                     DETAILS
                                 </a>
 
+                                {% if request.user == track.user %}
                                 {% if free_limit_reached %}
                                     <button disabled class="px-6 py-2 bg-white/5 text-gray-600 text-xs font-black rounded-lg cursor-not-allowed">
                                         LOCKED
@@ -106,6 +110,7 @@
                                             MASTER
                                         </button>
                                     </form>
+                                {% endif %}
                                 {% endif %}
                             </div>
                         </div>

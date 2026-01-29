@@ -145,7 +145,7 @@ def analyze_track(path):
         lyrics_raw = analyze_lyrics(path)
 
         # --- GPT ---
-        ai_feedback = generate_ai_summary({
+        analysis = generate_ai_summary({
             "rms": rms,
             "tempo": tempo,
             "energy": energy,
@@ -166,7 +166,7 @@ def analyze_track(path):
             "rms_over_time": downsample(rms_frames.tolist()),
             "centroid_over_time": downsample(centroid_frames.tolist()),
             "lyrics_raw": lyrics_raw,
-            "ai_feedback": ai_feedback,
+            "ai_feedback": analysis,
             "vocal_pitch": [],
             "vocal_stats": {},
         }

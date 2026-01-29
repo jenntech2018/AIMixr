@@ -10,7 +10,6 @@ urlpatterns = [
     path("rankings/", views.rankings_page, name="rankings"),
     path("api/rankings/", views.rankings_data, name="rankings_data"),
     path("track/<int:track_id>/status/", views.track_status, name="track_status"),
-    # 🔥 add these:
     path("login/", auth_views.LoginView.as_view(template_name="login.html"), name="login"),
     path("logout/", logout_view, name="logout"),
     path('register/', views.register_view, name='register'),
