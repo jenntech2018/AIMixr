@@ -214,7 +214,7 @@ def rankings_data(request):
 # ---------------------------------------------------------
 
 def privacy_policy(request):
-    return render(request, "privacy.html")
+    return render(request, "legal/privacy.html")
 
 def terms_of_service(request):
-    return render(request, "terms.html")
+    return render(request, "legal/terms.html")

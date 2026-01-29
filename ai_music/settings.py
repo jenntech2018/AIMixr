@@ -14,6 +14,11 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Ensure /usr/bin is in PATH so pydub can find ffmpeg
+# This fixes issues where systemd services have restricted PATHs
+if "/usr/bin" not in os.environ.get("PATH", ""):
+    os.environ["PATH"] += os.pathsep + "/usr/bin"
+
 load_dotenv(BASE_DIR / ".env")
 
 # -------------------------------------------------------------------------------
