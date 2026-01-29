@@ -170,7 +170,7 @@
     setTimeout(() => {
         // IMPORTANT: Check if your view uses "analysis" or "analysis_obj"
         // Based on the view I provided earlier, it should be:
-        const rawData = {{ analysis.waveform|safe|default:"[]" }};
+        const rawData = {{ analysis_obj.waveform|safe|default:"[]" }};
         
         if (rawData.length > 0) {
             draw("waveform-original", rawData, "#22d3ee", "#3b82f6");
