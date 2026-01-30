@@ -21,6 +21,11 @@ from pipeline.analyze_track import extract_waveform_only
 # AUTH
 # ---------------------------------------------------------
 
+def landing_page(request):
+    if request.user.is_authenticated:
+        return redirect("dashboard")
+    return render(request, "landing.html")
+
 def logout_view(request):
     logout(request)
     return render(request, "logout.html")
@@ -50,6 +55,7 @@ def register_view(request):
             password=password1,
         )
 
+        user.backend = "django.contrib.auth.backends.ModelBackend"
         UserProfile.objects.get_or_create(user=user)
         login(request, user)
         return redirect("dashboard")
@@ -95,16 +101,17 @@ def dashboard_view(request):
         visibility = request.POST.get("visibility", "public")
         is_private = (visibility == "private")
 
-        # 2. CREATE TRACK
-        track = Track.objects.create(
-            user=request.user,
-            audio_file=audio_file,
-            source_type="upload",
-            status="processing",
-            private=is_private,
-        )
-
+        track = None
         try:
+            # 2. CREATE TRACK
+            track = Track.objects.create(
+                user=request.user,
+                audio_file=audio_file,
+                source_type="upload",
+                status="processing",
+                private=is_private,
+            )
+
             # 3. INCREMENT: User is "charged" as soon as the upload is successful
             profile, _ = UserProfile.objects.get_or_create(user=request.user)
             profile.usage_count += 1
@@ -116,7 +123,9 @@ def dashboard_view(request):
             return redirect("track_detail", track_id=track.id)
         except Exception as e:
             print(f"Upload Error: {e}")
-            messages.error(request, "An error occurred during upload processing.")
+            if track:
+                track.delete()
+            messages.error(request, f"An error occurred during upload processing: {e}")
 
     tracks = Track.objects.filter(Q(private=False) | Q(user=request.user)).order_by("-created_at")
     return render(request, "dashboard.html", {"tracks": tracks})

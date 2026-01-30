@@ -4,7 +4,7 @@ from . import views
 from generator.views import logout_view
 
 urlpatterns = [
-    path("", views.dashboard_view, name="dashboard"),
+    path("", views.landing_page, name="home"),
     path("track/<int:track_id>/master/", views.master_track, name="master_track"),
     path("track/<int:track_id>/", views.track_detail, name="track_detail"),
     path("rankings/", views.rankings_page, name="rankings"),
