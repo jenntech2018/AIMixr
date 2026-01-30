@@ -14,6 +14,12 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Ensure /usr/bin is in PATH so pydub can find ffmpeg
+# This fixes issues where systemd services have restricted PATHs
+current_path = os.environ.get("PATH", "")
+if "/usr/bin" not in current_path:
+    os.environ["PATH"] = current_path + os.pathsep + "/usr/bin"
+
 load_dotenv(BASE_DIR / ".env")
 
 # -------------------------------------------------------------------------------
@@ -43,12 +49,13 @@ else:
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # -------------------------------------------------------------------------------
 # Hosts & CSRF
 # -------------------------------------------------------------------------------
 
 if DEBUG:
-    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1", "aimixr.online"]
     CSRF_TRUSTED_ORIGINS = []
 else:
     ALLOWED_HOSTS = [
@@ -84,6 +91,13 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",  # Required by allauth
+
+    # Third-party
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
 
     # your apps
     "generator",
@@ -106,6 +120,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "ai_music.urls"
@@ -181,6 +196,30 @@ LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/dashboard/"
 LOGOUT_REDIRECT_URL = "/login/"
 
+# -------------------------------------------------------------------------------
+# Allauth / Google
+# -------------------------------------------------------------------------------
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = 1
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APP': {
+            'client_id': os.environ.get('GOOGLE_CLIENT_ID'),
+            'secret': os.environ.get('GOOGLE_CLIENT_SECRET'),
+            'key': ''
+        },
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+    }
+}
+
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # or 'optional'
 # -------------------------------------------------------------------------------
 # Celery
 # -------------------------------------------------------------------------------
