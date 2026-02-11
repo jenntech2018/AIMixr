@@ -45,8 +45,9 @@ main {
 
     <nav class="hidden md:block border-b border-white/5 bg-black/20 backdrop-blur-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="/dashboard/" class="text-2xl font-extrabold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">AIMIXR</a>
+            <a href="/" class="text-2xl font-extrabold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">AIMIXR</a>
             <div class="flex items-center gap-8 text-sm font-medium">
+                {% if request.user.is_authenticated %}
                 <a href="/dashboard/" class="hover:text-cyan-400 transition">Dashboard</a>
                 <a href="{% url 'community_chat' %}" class="hover:text-cyan-400 transition">Community</a>
                 <a href="{% url 'battles' %}" class="hover:text-cyan-400 transition">Battles</a>
@@ -58,6 +59,10 @@ main {
                     {% csrf_token %}
                     <button type="submit" class="text-gray-400 hover:text-white transition">Logout</button>
                 </form>
+                {% else %}
+                <a href="{% url 'login' %}" class="text-gray-400 hover:text-white transition">Login</a>
+                <a href="{% url 'register' %}" class="px-4 py-2 bg-cyan-500 text-black rounded-full font-bold btn-glow">Sign Up</a>
+                {% endif %}
             </div>
         </div>
     </nav>
@@ -66,6 +71,7 @@ main {
         {% block content %}{% endblock %}
     </main>
 
+    {% if request.user.is_authenticated %}
     <nav class="md:hidden fixed bottom-0 left-0 right-0 bg-black/60 backdrop-blur-xl border-t border-white/10 px-8 py-3 flex justify-between items-center z-50" style="padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));">
         <a href="{% url 'community_chat' %}" class="flex flex-col items-center text-gray-500 active:text-cyan-400">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
@@ -97,5 +103,6 @@ main {
         </div>
         {% endif %}
     </nav>
+    {% endif %}
 </body>
 </html>
