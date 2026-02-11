@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="userprofile")
     is_premium = models.BooleanField(default=False)   # <-- PREMIUM FLAG
@@ -20,6 +22,13 @@ class UserProfile(models.Model):
                 return "Studio Pro"  # Premium users are Studio Pro
             return "Premium"       # Non-premium but active subscription
         return "Free"
+
+    @property
+    def has_active_subscription(self):
+        """
+        Returns True if the user has an active subscription (Premium or Studio Pro)
+        """
+        return self.subscription_active and (self.is_premium or self.plan_name == "Premium" or "Studio Pro" )
 
     def __str__(self):
         return self.user.username

@@ -4,7 +4,8 @@
 <div class="max-w-full overflow-hidden space-y-8 animate-in fade-in duration-700">
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div class="min-w-0 flex-1"> <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white truncate">
+        <div class="min-w-0 flex-1">
+            <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight text-white truncate">
                 {{ track.audio_file.name|default:"Unnamed Track" }}
             </h1>
             <div class="flex items-center gap-3 mt-2 text-sm">
@@ -13,6 +14,7 @@
             </div>
         </div>
 
+        {% if track.user == request.user %}
         <div class="w-full md:w-auto shrink-0">
             {% if track.master_file %}
                 <a href="{% url 'download_track' track.id %}" class="w-full md:w-auto px-8 py-4 bg-white text-black font-black rounded-2xl hover:scale-105 transition transform flex items-center justify-center gap-2">
@@ -34,56 +36,83 @@
                 {% endif %}
             {% endif %}
         </div>
+        {% endif %}
     </div>
 
     <div class="glass-card p-6 md:p-8">
         <div class="flex justify-between items-center mb-8">
             <h3 class="text-xs font-black text-gray-500 uppercase tracking-[0.2em]">Acoustic Fingerprint</h3>
-            <span class="text-[10px] text-cyan-500 font-bold uppercase">A/B Comparison</span>
+            {% if track.user == request.user %}<span class="text-[10px] text-cyan-500 font-bold uppercase">A/B Comparison</span>{% endif %}
         </div>
 
         <div class="grid grid-cols-1 gap-12 overflow-hidden">
+            {% if track.audio_file %}
             <div class="relative w-full">
                 <label class="text-[9px] font-black text-gray-500 uppercase mb-2 block">Input (Raw)</label>
                 <canvas id="waveform-original" class="w-full h-24 opacity-60"></canvas>
-                <audio controls class="w-full h-10 mt-2 opacity-80"><source src="{{ track.audio_file.url }}"></audio>
+                <audio controls class="w-full mt-2 opacity-80">
+                    <source src="{{ track.audio_file.url }}" type="audio/mpeg">
+                </audio>
             </div>
+            {% endif %}
 
-            {% if track.master_file %}
+            {% if track.user == request.user and track.master_file %}
             <div class="relative pt-6 border-t border-white/5 animate-in fade-in slide-in-from-bottom-2 duration-1000">
                 <label class="text-[9px] font-black text-purple-400 uppercase mb-2 block">Output (Mastered)</label>
                 <canvas id="waveform-mastered" class="w-full h-24"></canvas>
-                <audio controls class="w-full h-10 mt-2"><source src="{{ track.master_file.url }}"></audio>
-            </div>
-            {% else %}
-            <div class="py-10 text-center border-2 border-dashed border-white/5 rounded-2xl bg-white/5">
-                <p class="text-gray-600 text-xs font-bold uppercase tracking-widest">Mastered waveform will appear here</p>
+                <audio controls class="w-full mt-2">
+                    <source src="{{ track.master_file.url }}" type="audio/mpeg">
+                </audio>
             </div>
             {% endif %}
         </div>
     </div>
 
+    {% if track.user == request.user %}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div class="lg:col-span-2 min-w-0 space-y-6">
-            {% if user.userprofile.plan_name == "Studio Pro" %}
+            
             <div class="glass-card p-8 border-t-4 border-t-cyan-500/50">
-                <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
-                    <div class="min-w-0">
-                        <h3 class="text-xs font-black text-cyan-400 uppercase tracking-[0.3em] mb-2">AI Stem Separator</h3>
-                        <p class="text-gray-400 text-sm italic font-light truncate">Neural de-mixing technology.</p>
-                    </div>
+                <div class="mb-6">
+                    <h3 class="text-xs font-black text-cyan-400 uppercase tracking-[0.3em] mb-2">AI Stem Separator</h3>
                 </div>
+
+                {% if stems %}
+                    <div class="space-y-4">
+                      {% for stem in stems %}
+                        <div class="flex items-center gap-4 p-3 bg-white/5 rounded-xl">
+                          <span class="text-[10px] font-bold text-gray-400 uppercase w-16">{{ stem.name }}</span>
+                          <audio controls class="flex-1 h-8"><source src="{{ stem.file.url }}" type="audio/mpeg"></audio>
+                          <a href="{{ stem.file.url }}" download class="text-cyan-400 text-[10px] font-bold uppercase">DL</a>
+                        </div>
+                      {% endfor %}
+                    </div>
+                {% elif track.status == "splitting" %}
+                    <div class="text-center py-10">
+                        <div class="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-cyan-500 mb-4"></div>
+                        <p class="text-cyan-500 text-xs font-bold uppercase animate-pulse">Neural de-mixing in progress...</p>
+                    </div>
+                {% else %}
+                    <div class="text-center py-10 border-2 border-dashed border-white/10 rounded-2xl">
+                        {% if user.userprofile.plan_name == "Studio Pro" %}
+                            <form method="post" action="{% url 'split_stems' track.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="px-8 py-4 bg-cyan-500 text-black font-black rounded-xl hover:bg-cyan-400 transition uppercase text-xs">
+                                    Request Stem Separation
+                                </button>
+                            </form>
+                        {% else %}
+                            <p class="text-gray-500 text-xs font-bold uppercase mb-4">Stem Separation requires Studio Pro</p>
+                            <a href="{% url 'upgrade' %}" class="text-cyan-400 text-xs font-bold uppercase underline">Upgrade Now</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
             </div>
-            {% endif %}
 
             <div class="glass-card p-8 border-l-4 border-l-rose-500/50 bg-rose-500/5 overflow-hidden">
                 <h3 class="text-xs font-black text-rose-400 uppercase tracking-[0.2em] mb-6">Engineering Feedback</h3>
-                <div class="text-gray-300 leading-relaxed text-sm md:text-lg font-light space-y-4 break-words">
-                    {% if analysis.ai_feedback %}
-                        <div class="whitespace-pre-line">{{ analysis.ai_feedback|linebreaks }}</div>
-                    {% else %}
-                        <p class="italic">Awaiting final analysis...</p>
-                    {% endif %}
+                <div class="text-gray-300 text-sm space-y-4">
+                    {% if analysis_obj.ai_feedback %}{{ analysis_obj.ai_feedback|linebreaks }}{% else %}<p class="italic">Processing analysis...</p>{% endif %}
                 </div>
             </div>
         </div>
@@ -91,127 +120,59 @@
         <div class="min-w-0 space-y-6">
             <div class="glass-card p-6">
                 <h3 class="text-xs font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Technical Specs</h3>
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center border-b border-white/5 pb-2 gap-4">
-                        <span class="text-xs text-gray-400 shrink-0">Loudness (RMS)</span>
-                        <span class="font-mono text-[10px] text-white break-all text-right">{{ analysis.rms|default:"-14.2" }}</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-xs text-gray-400">Bit-depth</span>
-                        <span class="font-mono text-xs text-white">24-bit Float</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-card p-6">
-                <h3 class="text-xs font-black text-gray-500 uppercase tracking-[0.2em] mb-4">Transcription</h3>
-                <div class="max-h-[500px] overflow-y-auto pr-2 custom-scrollbar text-sm leading-relaxed text-gray-300 break-words">
-                    {% if analysis.lyrics_raw %}
-                        <div class="whitespace-pre-line font-medium italic">
-                            {{ analysis.lyrics_raw }}
-                        </div>
-                    {% else %}
-                        <span class="italic text-gray-600">No vocal data detected.</span>
-                    {% endif %}
-                </div>
+                <div class="flex justify-between items-center"><span class="text-xs text-gray-400">Loudness</span><span class="font-mono text-xs text-white">{{ analysis_obj.rms|default:"-14.2" }}</span></div>
             </div>
         </div>
     </div>
+    {% else %}
+    <div class="py-12 text-center border border-white/5 rounded-3xl"><p class="text-gray-500 text-xs font-bold uppercase tracking-widest">Public View: Playback Only</p></div>
+    {% endif %}
 </div>
 
 <script>
 (() => {
     const draw = (canvasId, data, colorStart, colorEnd) => {
         const canvas = document.getElementById(canvasId);
-        // Added a check to ensure data is an array and has length
-        if (!canvas || !Array.isArray(data) || data.length === 0) {
-            console.warn(`No data found for ${canvasId}`);
-            return;
-        }
-
+        if (!canvas || !Array.isArray(data) || data.length === 0) return;
         const ctx = canvas.getContext("2d");
         const dpr = window.devicePixelRatio || 1;
         const rect = canvas.getBoundingClientRect();
-        
-        // Force width if rect is zero (safety check)
-        canvas.width = (rect.width || canvas.clientWidth) * dpr;
-        canvas.height = (rect.height || canvas.clientHeight) * dpr;
+        canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;
         ctx.scale(dpr, dpr);
-
-        const width = canvas.width / dpr;
-        const height = canvas.height / dpr;
-        const mid = height / 2;
-
+        const width = canvas.width / dpr; const height = canvas.height / dpr; const mid = height / 2;
         const gradient = ctx.createLinearGradient(0, 0, 0, height);
-        gradient.addColorStop(0, colorStart);
-        gradient.addColorStop(1, colorEnd);
-
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = 2;
-        ctx.lineCap = "round";
-
-        const segments = 120;
-        const step = Math.floor(data.length / segments);
-        const barWidth = width / segments;
-        const maxVal = Math.max(...data, 0.01);
-
+        gradient.addColorStop(0, colorStart); gradient.addColorStop(1, colorEnd);
+        ctx.strokeStyle = gradient; ctx.lineWidth = 2; ctx.lineCap = "round";
+        const segments = 120; const step = Math.floor(data.length / segments);
+        const barWidth = width / segments; const maxVal = Math.max(...data, 0.01);
         ctx.beginPath();
         for (let i = 0; i < segments; i++) {
             const val = (data[i * step] || 0) / maxVal;
             const barHeight = val * (height * 0.8);
-            const x = i * barWidth;
-            ctx.moveTo(x, mid - barHeight / 2);
-            ctx.lineTo(x, mid + barHeight / 2);
+            ctx.moveTo(i * barWidth, mid - barHeight / 2);
+            ctx.lineTo(i * barWidth, mid + barHeight / 2);
         }
         ctx.stroke();
     };
-
-    // Use setTimeout to ensure the DOM layout is finished before drawing
     setTimeout(() => {
-        // IMPORTANT: Check if your view uses "analysis" or "analysis_obj"
-        // Based on the view I provided earlier, it should be:
-        const rawData = {{ analysis_obj.waveform|safe|default:"[]" }};
-        
-        if (rawData.length > 0) {
-            draw("waveform-original", rawData, "#22d3ee", "#3b82f6");
-        }
-
-        {% if analysis.master_waveform %}
-            const masteredData = {{ analysis.master_waveform|safe }};
+        const rawData = {{ analysis_obj.waveform|default:"[]"|safe }};
+        if (rawData.length > 0) draw("waveform-original", rawData, "#22d3ee", "#3b82f6");
+        {% if master_waveform and track.user == request.user %}
+            const masteredData = {{ master_waveform|safe }};
             draw("waveform-mastered", masteredData, "#a855f7", "#ec4899");
         {% endif %}
     }, 100);
 
-    // Polling logic
     const status = "{{ track.status }}";
-    if (["processing", "pending", "uploading"].includes(status)) {
+    if (["processing", "splitting", "pending"].includes(status) && "{{ track.user.id }}" === "{{ request.user.id }}") {
         const poll = setInterval(async () => {
             try {
                 const res = await fetch("{% url 'track_status' track.id %}");
                 const data = await res.json();
-                if (data.status === "analyzed" || data.status === "error") {
-                    clearInterval(poll);
-                    location.reload();
-                }
-            } catch (e) { console.error("Polling failed", e); }
+                if (data.status === "analyzed" || data.status === "error") { clearInterval(poll); location.reload(); }
+            } catch (e) { console.error(e); }
         }, 3000);
     }
 })();
 </script>
-<style>
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(34, 211, 238, 0.3); border-radius: 10px; }
-
-    /* CSS Fixes for layout blowout */
-    .whitespace-pre-line h3, .whitespace-pre-line strong {
-        display: block;
-        margin-top: 1.5rem;
-        color: #fb7185;
-        font-weight: 800;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-    }
-</style>
-
 {% endblock %}

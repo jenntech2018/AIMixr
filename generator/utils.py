@@ -1,6 +1,5 @@
 # generator/utils.py
 
-import profile
 
 
 def celery_available():
@@ -20,21 +19,29 @@ def celery_available():
 # generator/utils.py
 # generator/utils.py
 
+# generator/utils.py
+
 def user_reached_free_limit(user):
-    profile = user.userprofile
-    plan = profile.plan_name  # Assuming this matches your tier names
-    
-    if profile.is_premium:
-        # Premium and Studio Pro have no limits
-        if plan in ["Premium", "Studio Pro"]:
-            return False
-        
-        # Basic has a 10-track limit
-        if plan == "Basic":
-            return profile.usage_count >= 10
-            
-    # Free users have a 1-track limit
-    return profile.usage_count >= 1
+    """
+    Returns True if the user has reached their plan's upload limit.
+    Limits:
+      - Free: 1 track
+      - Basic: 10 tracks
+      - Premium / Studio Pro: unlimited
+    """
+    try:
+        profile = user.userprofile
+    except Exception:
+        # If for some reason the user has no profile, assume free limit reached
+        return True
+
+    plan = profile.plan_name or "Free"
+
+    if plan in ["Premium", "Studio Pro"]:
+        return False  # unlimited
+    elif plan == "Basic":
+        return profile.usage_count >= 10
+    else:  # Free users
+        return profile.usage_count >= 3
 
 
-  

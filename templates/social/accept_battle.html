@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-2xl mx-auto py-20">
+    <div class="glass-card p-10 text-center space-y-8">
+        <h1 class="text-3xl font-black text-white italic">ACCEPT CHALLENGE</h1>
+        <p class="text-gray-400">Choose your weapon. Select the track you want to enter into this battle against <span class="text-white font-bold">{{ battle.challenger.username }}</span>.</p>
+
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            <div class="text-left">
+                <label class="text-[10px] font-black text-gray-500 uppercase mb-2 block">Your Tracks</label>
+                <select name="track_id" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:border-cyan-500 outline-none">
+                    {% for track in user_tracks %}
+                        <option value="{{ track.id }}">{{ track }}</option>
+                    {% empty %}
+                        <option disabled>No tracks found. Upload one first!</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit" class="w-full py-4 bg-cyan-500 text-black font-black rounded-xl hover:scale-105 transition transform uppercase italic">
+                Enter the Arena
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

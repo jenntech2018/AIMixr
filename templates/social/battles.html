@@ -1,88 +1,156 @@
 {% extends 'base.html' %}
 
+{% block extra_css %}
+<style>
+    /* Arena styles load only on this page */
+    .arena-card {
+        background: linear-gradient(145deg, #0f0f0f 0%, #050505 100%);
+        border: 1px solid rgba(147, 51, 234, 0.2);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    .btn-vote-cyan {
+        background: rgba(6, 182, 212, 0.05);
+        border: 1px solid rgba(6, 182, 212, 0.3);
+        color: #06b6d4;
+    }
+    .btn-vote-cyan:hover {
+        background: #06b6d4;
+        color: #000;
+        box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+    }
+    .btn-vote-purple {
+        background: rgba(147, 51, 234, 0.05);
+        border: 1px solid rgba(147, 51, 234, 0.3);
+        color: #a855f7;
+    }
+    .btn-vote-purple:hover {
+        background: #9333ea;
+        color: #fff;
+        box-shadow: 0 0 20px rgba(147, 51, 234, 0.4);
+    }
+    .progress-glow-cyan { box-shadow: 0 0 15px rgba(6, 182, 212, 0.6); }
+    .progress-glow-purple { box-shadow: 0 0 15px rgba(147, 51, 234, 0.6); }
+    .custom-mini-player { filter: invert(100%) hue-rotate(180deg) brightness(1.2); }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="max-w-7xl mx-auto h-[calc(100vh-140px)] grid grid-cols-1 md:grid-cols-3 gap-8">
-    <!-- Left Column: Active Battles -->
-    <div class="md:col-span-2 glass-card flex flex-col overflow-hidden border border-white/10 h-full">
-        <div class="p-6 border-b border-white/10 bg-rose-500/10 backdrop-blur-md flex justify-between items-center">
-            <h2 class="font-bold text-xl tracking-tight text-rose-400 flex items-center gap-3">
-                <span>🔥</span> Active Battles
-            </h2>
-            <a href="{% url 'community_chat' %}" class="px-4 py-2 bg-rose-500 hover:bg-rose-400 text-white text-xs font-black rounded-lg transition-colors shadow-lg shadow-rose-500/20 flex items-center gap-2">
-                <span>FIND OPPONENT</span>
-                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+<div class="max-w-7xl mx-auto h-[calc(100vh-140px)] grid grid-cols-1 md:grid-cols-3 gap-8 py-6 px-4">
+    
+    <div class="md:col-span-2 flex flex-col overflow-hidden h-full">
+        <div class="p-6 flex justify-between items-center bg-black/40 rounded-t-2xl border-x border-t border-white/10">
+            <h2 class="font-bold text-xl tracking-tight text-rose-500 uppercase italic">🔥 Active Arena</h2>
+            <a href="{% url 'community_chat' %}" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-black rounded-lg transition-all flex items-center gap-2">
+                FIND OPPONENT
             </a>
         </div>
         
-        <div class="p-6 overflow-y-auto space-y-4">
+        <div class="flex-1 overflow-y-auto p-6 space-y-8 bg-black/20 border-x border-b border-white/10 rounded-b-2xl custom-scrollbar">
             {% for battle in battles %}
-            <div class="p-6 rounded-2xl bg-white/5 border border-white/10 hover:border-rose-500/30 transition-all group">
-                <div class="flex justify-between items-center mb-6 text-sm font-black text-gray-400 uppercase tracking-wider">
-                    <span class="text-white">{{ battle.challenger.username }}</span>
-                    <span class="text-rose-500 text-xl px-4">VS</span>
-                    <span class="text-white">{{ battle.opponent.username }}</span>
-                </div>
+            <div class="arena-card rounded-3xl p-6 border-t-2 border-t-purple-500/50 transition-transform hover:scale-[1.01]">
                 
-                <div class="grid grid-cols-2 gap-6">
-                    <div class="text-center space-y-3">
-                        <div class="text-xs text-gray-500 truncate font-medium">{{ battle.challenger_track.title|default:"Track A" }}</div>
-                        <a href="{% url 'vote_battle' battle.id battle.challenger.id %}" class="block w-full py-3 rounded-xl bg-white/5 hover:bg-cyan-500 hover:text-black text-xs font-black transition-all border border-white/5 uppercase tracking-wider">
-                            Vote Left
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full border border-cyan-500/50 flex items-center justify-center bg-cyan-500/10 text-cyan-400 font-black">
+                            {{ battle.challenger.username|slice:":1" }}
+                        </div>
+                        <div>
+                            <span class="text-[9px] text-cyan-500 font-black uppercase tracking-widest">Challenger</span>
+                            <p class="text-sm font-bold text-white leading-none">{{ battle.challenger.username }}</p>
+                        </div>
+                    </div>
+
+                    <div class="text-xl font-black italic text-white/10">VS</div>
+
+                    <div class="flex items-center gap-3 flex-row-reverse text-right">
+                        <div class="w-10 h-10 rounded-full border border-purple-500/50 flex items-center justify-center bg-purple-500/10 text-purple-400 font-black">
+                            {{ battle.opponent.username|slice:":1" }}
+                        </div>
+                        <div>
+                            <span class="text-[9px] text-purple-500 font-black uppercase tracking-widest">Opponent</span>
+                            <p class="text-sm font-bold text-white leading-none">{{ battle.opponent.username }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative w-full h-5 bg-black rounded-full overflow-hidden flex mb-6 border border-white/5">
+                    {% with total=battle.challenger_votes|add:battle.opponent_votes %}
+                        {% if total > 0 %}
+                            <div class="h-full bg-cyan-500 progress-glow-cyan transition-all duration-1000 flex items-center justify-end pr-2 text-[10px] font-black text-black" 
+                                 style="width: {% widthratio battle.challenger_votes total 100 %}%">
+                                {{ battle.challenger_votes }}
+                            </div>
+                            <div class="h-full bg-purple-600 progress-glow-purple transition-all duration-1000 flex items-center pl-2 text-[10px] font-black text-white" 
+                                 style="width: {% widthratio battle.opponent_votes total 100 %}%">
+                                {{ battle.opponent_votes }}
+                            </div>
+                        {% else %}
+                            <div class="w-1/2 h-full bg-zinc-900 border-r border-white/5"></div>
+                            <div class="w-1/2 h-full bg-zinc-900"></div>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-3">
+                        <audio controls class="w-full h-8 custom-mini-player">
+                            <source src="{{ battle.challenger_track.audio_file.url }}" type="audio/mpeg">
+                        </audio>
+                        <a href="{% url 'vote_battle' battle.id battle.challenger.id %}" class="btn-vote-cyan block w-full py-2.5 rounded-xl text-center text-[10px] font-black uppercase italic tracking-wider transition-all">
+                            VOTE CHALLENGER
                         </a>
                     </div>
-                    <div class="text-center space-y-3">
-                        <div class="text-xs text-gray-500 truncate font-medium">{{ battle.opponent_track.title|default:"Track B" }}</div>
+                    <div class="space-y-3">
                         {% if battle.opponent_track %}
-                            <a href="{% url 'vote_battle' battle.id battle.opponent.id %}" class="block w-full py-3 rounded-xl bg-white/5 hover:bg-cyan-500 hover:text-black text-xs font-black transition-all border border-white/5 uppercase tracking-wider">
-                                Vote Right
+                            <audio controls class="w-full h-8 custom-mini-player">
+                                <source src="{{ battle.opponent_track.audio_file.url }}" type="audio/mpeg">
+                            </audio>
+                            <a href="{% url 'vote_battle' battle.id battle.opponent.id %}" class="btn-vote-purple block w-full py-2.5 rounded-xl text-center text-[10px] font-black uppercase italic tracking-wider transition-all">
+                                VOTE OPPONENT
                             </a>
                         {% else %}
-                            <span class="block w-full py-3 rounded-xl bg-white/5 text-gray-600 text-xs font-black border border-white/5 border-dashed uppercase tracking-wider cursor-not-allowed">
-                                Waiting...
-                            </span>
+                            <div class="h-8 flex items-center justify-center text-zinc-700 text-[10px] font-black italic">AWAITING TRACK...</div>
+                            <button disabled class="w-full py-2.5 bg-zinc-900/50 text-zinc-700 rounded-xl text-[10px] font-black uppercase italic border border-white/5 cursor-not-allowed">
+                                LOCKED
+                            </button>
                         {% endif %}
                     </div>
                 </div>
             </div>
             {% empty %}
-            <div class="text-center py-20 text-gray-500 font-medium">No active battles right now. Challenge someone in the chat!</div>
+            <div class="text-center py-20 text-zinc-600 font-bold uppercase tracking-widest italic">No battles currently live</div>
             {% endfor %}
         </div>
     </div>
 
-    <!-- Right Column: Leaderboard -->
-    <div class="glass-card flex flex-col overflow-hidden border border-white/10 h-full">
-        <div class="p-6 border-b border-white/10 bg-yellow-500/10 backdrop-blur-md flex justify-between items-center">
-            <h2 class="font-bold text-xl tracking-tight text-yellow-400 flex items-center gap-2">
-                <span>🏆</span> Leaderboard
-            </h2>
-            <span class="text-xs font-bold text-yellow-500/50 uppercase tracking-widest">Top Winners</span>
+    <div class="arena-card flex flex-col overflow-hidden rounded-2xl h-full border border-white/10">
+        <div class="p-6 border-b border-white/10 bg-yellow-500/5 flex justify-between items-center">
+            <h2 class="font-bold text-lg text-yellow-500 italic uppercase">🏆 Rankings</h2>
+            <span class="text-[9px] font-black text-zinc-500 uppercase">{{ leaderboard|length }} Warriors</span>
         </div>
         
-        <div class="overflow-y-auto">
+        <div class="flex-1 overflow-y-auto custom-scrollbar">
             <table class="w-full text-left">
-                <thead class="bg-white/5 text-[10px] uppercase font-black text-gray-500 tracking-widest sticky top-0 backdrop-blur-md">
+                <thead class="bg-black/40 text-[9px] uppercase font-black text-zinc-500 tracking-widest sticky top-0 backdrop-blur-md">
                     <tr>
-                        <th class="px-6 py-4">Rank</th>
-                        <th class="px-6 py-4">User</th>
-                        <th class="px-6 py-4 text-right">Wins</th>
+                        <th class="px-4 py-4">Rank</th>
+                        <th class="px-4 py-4">User</th>
+                        <th class="px-4 py-4 text-center">Battles</th>
+                        <th class="px-4 py-4 text-right">Wins</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-white/5 text-sm">
+                <tbody class="divide-y divide-white/5 text-xs">
                     {% for user in leaderboard %}
-                    <tr class="hover:bg-white/5 transition-colors group {% if user == request.user %}bg-yellow-500/10{% endif %}">
-                        <td class="px-6 py-4 font-mono text-yellow-500 font-bold group-hover:scale-110 transition-transform origin-left">#{{ forloop.counter }}</td>
-                        <td class="px-6 py-4 font-bold text-white">
+                    <tr class="hover:bg-white/5 transition-colors group {% if user == request.user %}bg-yellow-500/5{% endif %}">
+                        <td class="px-4 py-4 font-mono text-yellow-500 font-bold">#{{ forloop.counter }}</td>
+                        <td class="px-4 py-4 font-bold text-zinc-300">
                             {{ user.username }}
                             {% if user == request.user %}
-                            <span class="ml-2 text-[9px] bg-yellow-500 text-black px-1.5 py-0.5 rounded font-black uppercase tracking-tighter">YOU</span>
+                            <span class="ml-1 text-[7px] bg-yellow-500 text-black px-1 rounded font-black">YOU</span>
                             {% endif %}
                         </td>
-                        <td class="px-6 py-4 text-right font-mono text-gray-400 group-hover:text-white transition-colors">{{ user.wins }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="3" class="px-6 py-8 text-center text-gray-500 text-xs">No battles recorded yet.</td>
+                        <td class="px-4 py-4 text-center font-mono text-zinc-500">{{ user.total_battles }}</td>
+                        <td class="px-4 py-4 text-right font-mono text-white group-hover:text-yellow-400">{{ user.wins_count }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

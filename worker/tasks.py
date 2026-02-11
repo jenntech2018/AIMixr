@@ -63,3 +63,39 @@ def analyze_track_task(self, track_id):
         analysis.save(update_fields=["error", "updated_at"])
         raise
     logger.info(f"[TASK] Analysis completed for track {track_id}")
+
+
+import os
+import subprocess
+from celery import shared_task
+from generator.models import Track
+
+
+@shared_task(bind=True)
+def split_stems_task(self, track_id):
+    try:
+        track = Track.objects.get(id=track_id)
+
+        input_file = track.audio_file.path
+        output_dir = "media/stems"
+
+        os.makedirs(output_dir, exist_ok=True)
+
+        cmd = [
+            "demucs",
+            "-o", output_dir,
+            input_file
+        ]
+
+        subprocess.run(cmd, check=True)
+
+        # Optional: mark status
+        track.status = "stems_ready"
+        track.save()
+
+        return "Done"
+
+    except Exception as e:
+        track.status = "error"
+        track.save()
+        raise e

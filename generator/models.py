@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+import os
 
 class Track(models.Model):
     private = models.BooleanField(default=False)
@@ -23,10 +24,13 @@ class Track(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
+        """This controls how the track appears in dropdowns and the admin."""
+        if self.audio_file:
+            return os.path.basename(self.audio_file.name)
         return f"Track {self.id}"
-
+    
     def get_audio_path(self):
-        return self.audio_file.path if self.audio_file else None
+        return self.audio_file.url if self.audio_file else None
 
 
 class TrackAnalysis(models.Model):
@@ -53,3 +57,17 @@ class TrackAnalysis(models.Model):
 
     def __str__(self):
         return f"Analysis for Track {self.track_id}"
+
+
+from django.db import models
+
+
+# generator/models.py
+class Stem(models.Model):
+    track = models.ForeignKey(Track, related_name="stems", on_delete=models.CASCADE)
+    name = models.CharField(max_length=255)
+    file = models.FileField(upload_to="stems/%Y/%m/%d")
+
+    def __str__(self):
+        # Use audio_file name instead of title
+        return f"{self.track.audio_file} - {self.name}"

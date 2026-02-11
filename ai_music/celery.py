@@ -1,17 +1,23 @@
-
-
-# ai_music/celery.py
+from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery
- 
-# Tell Celery where Django settings live
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "ai_music.settings")
 
-# CREATE the Celery app
-app = Celery("ai_music")
+# Force Redis
+REDIS_URL = os.environ.get(
+    "REDIS_URL",
+    "redis://127.0.0.1:6379/0"
+)
 
-# Load settings from Django settings.py
+app = Celery(
+    "ai_music",
+    broker=REDIS_URL,
+    backend=REDIS_URL,
+)
+
+# Load Django settings
 app.config_from_object("django.conf:settings", namespace="CELERY")
 
-# Auto-discover tasks from all installed apps
+# Discover tasks
 app.autodiscover_tasks()
