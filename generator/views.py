@@ -347,6 +347,7 @@ def rankings_data(request):
     return JsonResponse({
         "tracks": [
             {
+                "index": t.index,
                 "id": t.id,
                 "name": os.path.basename(t.audio_file.name)
                 if t.audio_file else "Unknown",
