@@ -12,31 +12,18 @@ from dotenv import load_dotenv
 # LOGGING 
 #------------------------------------------------------------------------------
 LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "[{levelname}] {asctime} {name} {message}",
-            "style": "{",
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
         },
     },
-    "handlers": {
-        "file": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": "/var/log/aimixr/django-debug.log",
-            "formatter": "verbose",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["file"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
     },
 }
-
 
 
 
