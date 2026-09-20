@@ -15,7 +15,7 @@ librosa==0.10.1
 openai>=1.40.0
 openai-whisper
 transformers>=4.38.0
-tensorflow-cpu>=2.15.0
+# tensorflow-cpu>=2.15.0
 
 # Stage 3: PyTorch CPU (The massive downloads)
 --extra-index-url https://download.pytorch.org/whl/cpu
