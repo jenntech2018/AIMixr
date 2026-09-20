@@ -29,6 +29,7 @@ pydub
 requests>=2.31.0
 stripe
 djangorestframework>=3.14.0
+django-allauth>=65.0.0
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
